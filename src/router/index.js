@@ -7,6 +7,7 @@ import AdminLayout from '@/layouts/AdminLayout.vue'
 // Vistas
 import CallbackView from '@/views/CallbackView.vue'
 import DashboardView from '@/views/DashboardView.vue'
+import AgencyView from '@/views/admin/agencies/AgencyView.vue'
 import UnauthorizedView from '@/views/UnauthorizedView.vue'
 
 const router = createRouter({
@@ -39,6 +40,12 @@ const router = createRouter({
           name: 'dashboard',
           component: DashboardView,
           meta: { title: 'Sistema de Mercadeo' } // Ejemplo: si necesitara permiso, agregar permission: 'ver_dashboard'
+        },
+        {
+          path: 'agencias',
+          name: 'agencias',
+          component: AgencyView,
+          meta: { title: 'Gestión de Agencias' }
         },
       ]
     },

@@ -1,5 +1,4 @@
 // Importamos la instancia configurada para llamadas a la API propia (Hija)
-import api from '../axios'; 
 // Importamos axios crudo para llamadas a la API de autenticación (Madre)
 import axios from 'axios';
 import { generateCodeVerifier, generateCodeChallenge } from '../utils/pkce';
@@ -69,10 +68,10 @@ export default {
     // Usamos axios directo hacia la MADRE, inyectando el token manualmente.
     // Esto conecta con la ruta Route::middleware('auth:api')->get('/user') que me mostraste.
     const response = await axios.get(`${MOTHER_API_URL}/api/user`, {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-        }
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json'
+      }
     });
 
     return response.data;
