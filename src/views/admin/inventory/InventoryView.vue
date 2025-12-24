@@ -1,14 +1,21 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import InventoryService from '@/services/inventory/InventoryService';
+import AgencyService from '@/services/agency/AgencyService';
 import InventoryFormModal from '@/components/inventory/InventoryFormModal.vue';
 import IncidentModal from '@/components/inventory/IncidentModal.vue';
 import Swal from 'sweetalert2';
 
 // State
 const inventory = ref([]);
+const agencies = ref([]); // Lista de agencias para el select
 const loading = ref(false);
 const searchQuery = ref('');
+const selectedAgency = ref(''); // Filtro por agencia
+
+// Pagination State
+const currentPage = ref(1);
+const itemsPerPage = ref(10); // Elementos por página
 
 // Modals State
 const showFormModal = ref(false);
@@ -31,24 +38,58 @@ const loadInventory = async () => {
     }
 };
 
+const loadAgencies = async () => {
+    try {
+        const res = await AgencyService.getAll();
+        agencies.value = res.data;
+    } catch (error) {
+        console.error('Error cargando agencias:', error);
+    }
+};
+
 // Computed: Filtered Data
 const filteredInventory = computed(() => {
-    if (!searchQuery.value) return inventory.value;
+    let result = inventory.value;
 
-    const lowerQuery = searchQuery.value.toLowerCase();
-    return inventory.value.filter(item => {
-        const code = item.codigo_activo?.toLowerCase() || '';
-        const name = item.nombre_equipo?.toLowerCase() || '';
-        const agency = item.agencia?.nombre?.toLowerCase() || '';
-        const category = item.categoria?.nombre?.toLowerCase() || '';
-        const responsible = item.nombre_responsable?.toLowerCase() || '';
+    // 1. Filter by Agency
+    if (selectedAgency.value) {
+        result = result.filter(item => item.agencia_id === selectedAgency.value || item.agencia?.id === selectedAgency.value);
+    }
 
-        return code.includes(lowerQuery) ||
-               name.includes(lowerQuery) ||
-               agency.includes(lowerQuery) ||
-               category.includes(lowerQuery) ||
-               responsible.includes(lowerQuery);
-    });
+    // 2. Filter by Search Query
+    if (searchQuery.value) {
+        const lowerQuery = searchQuery.value.toLowerCase();
+        result = result.filter(item => {
+            const code = item.codigo_activo?.toLowerCase() || '';
+            const name = item.nombre_equipo?.toLowerCase() || '';
+            const agency = item.agencia?.nombre?.toLowerCase() || '';
+            const category = item.categoria?.nombre?.toLowerCase() || '';
+            const responsible = item.nombre_responsable?.toLowerCase() || '';
+
+            return code.includes(lowerQuery) ||
+                   name.includes(lowerQuery) ||
+                   agency.includes(lowerQuery) ||
+                   category.includes(lowerQuery) ||
+                   responsible.includes(lowerQuery);
+        });
+    }
+
+    return result;
+});
+
+// Computed: Pagination
+const totalPages = computed(() => Math.ceil(filteredInventory.value.length / itemsPerPage.value));
+
+const paginatedInventory = computed(() => {
+    const start = (currentPage.value - 1) * itemsPerPage.value;
+    const end = start + itemsPerPage.value;
+    return filteredInventory.value.slice(start, end);
+});
+
+// Watch para resetear página al filtrar
+import { watch } from 'vue';
+watch([searchQuery, selectedAgency], () => {
+    currentPage.value = 1;
 });
 
 // Actions
@@ -107,9 +148,21 @@ const handleDelete = async (id) => {
         }
     }
 };
+// Pagination Actions
+const nextPage = () => {
+    if (currentPage.value < totalPages.value) currentPage.value++;
+};
 
+const prevPage = () => {
+    if (currentPage.value > 1) currentPage.value--;
+};
+
+const goToPage = (page) => {
+    currentPage.value = page;
+};
 onMounted(() => {
     loadInventory();
+    loadAgencies();
 });
 </script>
 
@@ -122,6 +175,19 @@ onMounted(() => {
             </div>
 
             <div class="flex gap-3 w-full md:w-auto">
+                <!-- Select Agencia -->
+                <div class="w-full md:w-48">
+                    <select
+                        v-model="selectedAgency"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-azul-cope focus:border-transparent outline-none transition-all"
+                    >
+                        <option value="">Todas las Agencias</option>
+                        <option v-for="agency in agencies" :key="agency.id" :value="agency.id">
+                            {{ agency.nombre }}
+                        </option>
+                    </select>
+                </div>
+
                 <!-- Search -->
                 <div class="relative w-full md:w-64">
                      <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -178,7 +244,7 @@ onMounted(() => {
                             {{ searchQuery ? 'No se encontraron resultados para tu búsqueda.' : 'No hay activos registrados.' }}
                         </td>
                     </tr>
-                    <tr v-for="item in filteredInventory" :key="item.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group">
+                    <tr v-for="item in paginatedInventory" :key="item.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group">
                         <!-- Código -->
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
@@ -187,24 +253,24 @@ onMounted(() => {
                         </td>
 
                         <!-- Equipo / Marca -->
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-6 py-4">
                             <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.nombre_equipo || 'Sin nombre' }}</div>
                             <div class="text-xs text-gray-500 dark:text-gray-400">{{ item.marca }} {{ item.modelo }}</div>
                         </td>
 
                         <!-- Agencia -->
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                             {{ item.agencia?.nombre || '---' }}
                         </td>
 
                         <!-- Responsable -->
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-6 py-4">
                             <div class="text-sm text-gray-900 dark:text-gray-200">{{ item.nombre_responsable || 'Sin asignar' }}</div>
                             <div class="text-xs text-gray-500">{{ item.area }}</div>
                         </td>
 
                         <!-- Categoría -->
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                             {{ item.categoria?.nombre || '---' }}
                         </td>
 
@@ -253,6 +319,48 @@ onMounted(() => {
                     </tr>
                 </tbody>
             </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div v-if="filteredInventory.length > 0" class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6">
+            <div class="text-sm text-gray-500 dark:text-gray-400 order-2 sm:order-1">
+                Mostrando <span class="font-medium">{{ (currentPage - 1) * itemsPerPage + 1 }}</span> a <span class="font-medium">{{ Math.min(currentPage * itemsPerPage, filteredInventory.length) }}</span> de <span class="font-medium">{{ filteredInventory.length }}</span> resultados
+            </div>
+
+            <div class="flex items-center gap-2 order-1 sm:order-2">
+                <button
+                    @click="prevPage"
+                    :disabled="currentPage === 1"
+                    class="px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                    Anterior
+                </button>
+
+                <div class="hidden sm:flex gap-1">
+                    <button
+                        v-for="page in totalPages"
+                        :key="page"
+                        @click="goToPage(page)"
+                        :class="[
+                            'px-3 py-1 rounded-md text-sm font-medium transition-colors',
+                            currentPage === page
+                                ? 'bg-azul-cope text-white'
+                                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                        ]"
+                    >
+                        {{ page }}
+                    </button>
+                </div>
+                 <span class="sm:hidden text-sm text-gray-600 dark:text-gray-300">Pág. {{ currentPage }} de {{ totalPages }}</span>
+
+                <button
+                    @click="nextPage"
+                    :disabled="currentPage === totalPages"
+                    class="px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                    Siguiente
+                </button>
+            </div>
         </div>
 
         <!-- Modals -->
