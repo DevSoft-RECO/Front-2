@@ -8,7 +8,7 @@
                   Hola, <span class="text-azul-cope">{{ authStore.user.name }}</span>
               </h2>
               <p class="text-gray-500 dark:text-gray-400 mt-1">
-                  Bienvenido a la App de Mercadeo. Tu rol es: <span class="font-semibold">{{ userRole }}</span>
+                  Bienvenido a la App de Inventario IT. Tu rol es: <span class="font-semibold">{{ userRole }}</span>
               </p>
           </div>
           <div class="mt-4 md:mt-0">
