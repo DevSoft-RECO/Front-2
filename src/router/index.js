@@ -8,6 +8,8 @@ import AdminLayout from '@/layouts/AdminLayout.vue'
 import CallbackView from '@/views/CallbackView.vue'
 import DashboardView from '@/views/DashboardView.vue'
 import AgencyView from '@/views/admin/agencies/AgencyView.vue'
+import InventoryView from '@/views/admin/inventory/InventoryView.vue'
+import CategoryView from '@/views/admin/inventory/CategoryView.vue'
 import UnauthorizedView from '@/views/UnauthorizedView.vue'
 
 const router = createRouter({
@@ -46,6 +48,18 @@ const router = createRouter({
           name: 'agencias',
           component: AgencyView,
           meta: { title: 'Gestión de Agencias' }
+        },
+        {
+          path: 'inventarios',
+          name: 'inventarios',
+          component: InventoryView,
+          meta: { title: 'Gestión de Inventarios' }
+        },
+        {
+          path: 'categorias',
+          name: 'categorias',
+          component: CategoryView,
+          meta: { title: 'Gestión de Categorías' }
         },
       ]
     },
