@@ -14,6 +14,19 @@ onMounted(async () => {
   if (!isCallbackRoute) {
       await authStore.checkAuth() 
   }
+
+  // Remove preloader with fade-out
+  const loader = document.getElementById('loading-wrapper');
+  if (loader) {
+    loader.style.transition = 'opacity 0.5s ease';
+    // Small delay to ensure render
+    setTimeout(() => {
+        loader.style.opacity = '0';
+        setTimeout(() => {
+            loader.remove();
+        }, 500); // Wait for transition
+    }, 500); // Minimum visibility time
+  }
 })
 </script>
 
