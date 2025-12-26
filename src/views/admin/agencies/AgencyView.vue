@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import AgencyService from '@/services/agency/AgencyService';
 import Swal from 'sweetalert2';
+import BrandLoader from '@/components/shared/BrandLoader.vue';
 
 const agencias = ref([]);
 const loading = ref(false);
@@ -97,7 +98,9 @@ onMounted(() => {
                 </thead>
                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     <tr v-if="loading && agencias.length === 0">
-                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">Cargando agencias...</td>
+                        <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                            <BrandLoader />
+                        </td>
                     </tr>
                     <tr v-else-if="agencias.length === 0">
                         <td colspan="5" class="px-6 py-4 text-center text-gray-500">No hay agencias sincronizadas aún.</td>

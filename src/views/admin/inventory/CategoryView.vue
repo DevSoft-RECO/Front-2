@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import CategoryService from '@/services/inventory/CategoryService';
 import Swal from 'sweetalert2';
+import BrandLoader from '@/components/shared/BrandLoader.vue';
 
 const categories = ref([]);
 const loading = ref(false);
@@ -79,7 +80,7 @@ const deleteCategory = async (id) => {
             await CategoryService.delete(id);
             Swal.fire('Eliminado', 'La categoría ha sido eliminada.', 'success');
             loadCategories();
-        } catch (error) {
+        } catch {
             Swal.fire('Error', 'No se pudo eliminar la categoría', 'error');
         }
     }
@@ -118,7 +119,9 @@ onMounted(() => {
                 </thead>
                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     <tr v-if="loading && categories.length === 0">
-                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">Cargando...</td>
+                        <td colspan="4" class="px-6 py-12 text-center text-gray-500">
+                            <BrandLoader />
+                        </td>
                     </tr>
                     <tr v-else-if="categories.length === 0">
                         <td colspan="4" class="px-6 py-4 text-center text-gray-500">No hay categorías registradas.</td>

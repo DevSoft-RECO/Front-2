@@ -6,6 +6,7 @@ import InventoryFormModal from '@/components/inventory/InventoryFormModal.vue';
 import IncidentModal from '@/components/inventory/IncidentModal.vue';
 import Swal from 'sweetalert2';
 import AdminContent from '@/components/layout/AdminContent.vue'; // Asumo la ruta de tu layout
+import BrandLoader from '@/components/shared/BrandLoader.vue';
 
 // State
 const inventory = ref([]);
@@ -155,9 +156,7 @@ const prevPage = () => {
     if (currentPage.value > 1) currentPage.value--;
 };
 
-const goToPage = (page) => {
-    currentPage.value = page;
-};
+
 
 onMounted(() => {
     loadInventory();
@@ -225,13 +224,7 @@ onMounted(() => {
                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     <tr v-if="loading && inventory.length === 0">
                         <td colspan="7" class="px-6 py-8 text-center text-gray-500">
-                            <div class="flex justify-center items-center gap-2">
-                                <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                Cargando inventario...
-                            </div>
+                            <BrandLoader />
                         </td>
                     </tr>
                     <tr v-else-if="filteredInventory.length === 0">
