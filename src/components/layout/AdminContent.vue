@@ -13,7 +13,7 @@ defineProps({
 
 <template>
   <div class="py-8">
-    <div v-if="title" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
+    <div v-if="title" class="w-full px-4 sm:px-6 lg:px-8 mb-6">
       <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
         {{ title }}
       </h1>
@@ -22,7 +22,7 @@ defineProps({
       </p>
     </div>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="w-full px-4 sm:px-6 lg:px-8">
       <slot />
     </div>
   </div>
