@@ -35,7 +35,7 @@ const router = createRouter({
     {
       path: '/admin',
       component: AdminLayout,
-      meta: { requiresAuth: true, permission: 'sistema_inventario' },
+      meta: { requiresAuth: true, role: 'Super Admin' },
       children: [
         {
           path: 'dashboard',
@@ -100,17 +100,13 @@ router.beforeEach(async (to, from, next) => {
       }
     }
 
-    // Verificar permisos específicos de la ruta
-    // Importante: Verificamos 'to.meta.permission' que puede venir de la ruta padre o la hija
-    // Para simplificar, Vue Router mergea meta de padres a hijos, así que 'to.meta.permission'
-    // tendrá el valor 'sistema_inventario' si está definido en /admin.
-    if (to.meta.permission && !authStore.can(to.meta.permission)) {
-      // Usuario logueado pero SIN PERMISO -> Redirigir a App Madre
-      // Usamos variable de entorno para la URL de la App Madre
-      // Si VITE_MOTHER_APP_URL no está definida, usamos localhost como fallback seguro
+
+    // Verificar Rol
+    if (to.meta.role && !authStore.hasRole(to.meta.role)) {
+      // Usuario logueado pero SIN ROL -> Redirigir a App Madre
       const motherAppUrl = import.meta.env.VITE_MOTHER_APP_URL || 'http://localhost:5173';
 
-      console.warn(`⛔ Acceso denegado: Usuario no tiene permiso '${to.meta.permission}'. Redirigiendo a App Madre...`);
+      console.warn(`⛔ Acceso denegado: Usuario no tiene el rol '${to.meta.role}'. Redirigiendo a App Madre...`);
       window.location.href = `${motherAppUrl}/apps`;
       return;
     }

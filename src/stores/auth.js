@@ -96,6 +96,14 @@ export const useAuthStore = defineStore('auth', () => {
     return false
   }
 
+  /**
+   * Verifica si el usuario tiene un rol específico
+   */
+  function hasRole(role) {
+    if (!user.value) return false
+    return user.value.roles && user.value.roles.includes(role)
+  }
+
   // Verificar autenticación al arrancar (si hay token)
   async function checkAuth() {
     await fetchUser()
@@ -112,6 +120,7 @@ export const useAuthStore = defineStore('auth', () => {
     logout,
     fetchUser,
     checkAuth,
-    can
+    can,
+    hasRole
   }
 })
