@@ -1,78 +1,115 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth' // Asegúrate de importar el store
+import { useAuthStore } from '@/stores/auth'
+import axios from 'axios' // Mantenemos axios para la configuración robusta
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 
-const status = ref('Validando código de autorización...')
-const errorData = ref(null) // Para mostrar el detalle del error
+const status = ref('Validando acceso institucional')
+const subStatus = ref(
+  'Estamos verificando tu identidad con los sistemas de la Cooperativa YAMAN KUTX.'
+)
 
 onMounted(async () => {
-  const code = route.query.code
+  // ADAPTACIÓN: Usamos el token directo según el refactor reciente
+  const token = route.query.token
 
-  if (!code) {
-    status.value = 'Error: No llegó ningún código en la URL.'
+  if (!token) {
+    status.value = 'Autenticación no válida'
+    subStatus.value =
+      'No se recibió la información necesaria para validar la sesión.'
     return
   }
 
   try {
-    // Intentamos canjear el código
-    await authStore.handleCallback(code)
+    // 1. Configuración Robusta (Race Condition Fix)
+    authStore.token = token
+    localStorage.setItem('access_token', token)
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
-    status.value = '¡Éxito! Redirigiendo al Dashboard...'
-    
-    // Solo redirigimos si NO hubo error
+    // 2. Procesar en store
+    await authStore.handleDirectToken(token)
+
+    status.value = 'Acceso autorizado'
+    subStatus.value =
+      'Bienvenido a los sistemas internos de la Cooperativa YAMAN KUTX.'
+
     setTimeout(() => {
-       router.push({ name: 'dashboard' })
-    }, 1000)
+      router.push({ name: 'dashboard' })
+    }, 900)
 
   } catch (e) {
-    console.error("Fallo el canje de token:", e)
-    
-    status.value = 'ERROR FATAL EN EL INTERCAMBIO DE TOKEN'
-    
-    // Capturamos el error detallado
-    if (e.response) {
-        errorData.value = {
-            status: e.response.status,
-            data: e.response.data
-        }
-    } else {
-        errorData.value = e.message
-    }
-    
-    // IMPORTANTE: NO hacemos router.push ni redirección aquí.
-    // Nos quedamos en esta pantalla para leer el error.
+    console.error(e)
+    status.value = 'Error de autenticación'
+    subStatus.value =
+      'No fue posible validar tu sesión. Por favor, intenta nuevamente.'
   }
 })
 </script>
-
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
-    <div class="bg-white p-8 rounded-xl shadow-lg max-w-2xl w-full text-center">
-      
-      <h1 class="text-xl font-bold mb-4 text-gray-800">{{ status }}</h1>
+  <div
+    class="min-h-screen flex items-center justify-center px-4
+           bg-gradient-to-br from-[#0B3C5D]/10 to-[#1FAF8B]/10
+           dark:from-gray-900 dark:to-gray-950"
+  >
+    <div
+      class="w-full max-w-md rounded-2xl bg-white dark:bg-gray-900
+             shadow-2xl border border-gray-200 dark:border-gray-800
+             p-8 text-center space-y-6"
+    >
+      <!-- Marca -->
+      <div class="space-y-2">
+        <div class="flex justify-center">
+          <img src="@/assets/logoyk.svg" alt="Logo Yaman Kutx" class="brand-logo" />
+        </div>
 
-      <div class="text-xs text-gray-400 mb-4 break-all">
-         Código recibido: {{ route.query.code?.substring(0, 20) }}...
+        <h1 class="text-lg font-semibold text-[#0B3C5D] dark:text-white">
+          Cooperativa YAMAN KUTX
+        </h1>
+        <p class="text-xs text-gray-500 dark:text-gray-400">
+          Plataforma Corporativa
+        </p>
       </div>
 
-      <div v-if="errorData" class="bg-red-50 border border-red-200 p-4 rounded text-left">
-        <h3 class="text-red-700 font-bold mb-2">Detalles del Error:</h3>
-        <pre class="text-xs text-red-600 overflow-auto whitespace-pre-wrap">{{ JSON.stringify(errorData, null, 2) }}</pre>
+      <!-- Loader -->
+      <div class="flex justify-center py-2">
+        <div class="relative h-10 w-10">
+          <div
+            class="absolute inset-0 rounded-full border-2
+                   border-gray-300 dark:border-gray-700"
+          ></div>
+          <div
+            class="absolute inset-0 rounded-full border-2
+                   border-t-[#1FAF8B] animate-spin"
+          ></div>
+        </div>
       </div>
 
-      <div v-else class="flex justify-center my-4">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <!-- Estado -->
+      <div class="space-y-2">
+        <h2 class="text-base font-semibold text-gray-800 dark:text-gray-100">
+          {{ status }}
+        </h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          {{ subStatus }}
+        </p>
       </div>
 
-      <a v-if="errorData" href="/" class="mt-6 inline-block bg-gray-800 text-white px-6 py-2 rounded hover:bg-gray-700">
-        Volver a intentar Login
-      </a>
-
+      <!-- Mensaje institucional -->
+      <div
+        class="text-xs text-gray-400 dark:text-gray-500
+               border-t border-gray-200 dark:border-gray-800 pt-4"
+      >
+        Este proceso garantiza un acceso seguro a los sistemas internos de la
+        <span class="font-medium text-[#0B3C5D] dark:text-[#1FAF8B]">
+          Cooperativa YAMAN KUTX
+        </span>.
+        <br />
+        Por favor, no cierres ni recargues esta ventana.
+      </div>
     </div>
   </div>
 </template>

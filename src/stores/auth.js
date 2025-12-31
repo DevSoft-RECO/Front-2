@@ -27,19 +27,27 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /**
-   * Procesa el código que viene de Laravel
+   * Procesa el token que viene de la App Madre
    */
-  async function handleCallback(code) {
+  async function handleDirectToken(incomingToken, userData = null) {
     processingSSO.value = true
     try {
-      const data = await AuthService.handleCallback(code)
-      token.value = data.access_token
-      localStorage.setItem('access_token', data.access_token)
+      const data = AuthService.processDirectToken(incomingToken, userData)
+      // data.access_token ya está en localStorage gracias al service
+      // data.user también, si venía
 
-      // Una vez tenemos token, pedimos el usuario inmediatamente
-      await fetchUser()
+      token.value = data.access_token
+
+      // Si recibimos usuario, actualizamos state de una vez
+      if (data.user) {
+        user.value = data.user
+      } else {
+        // Si no vino usuario completo, lo pedimos
+        await fetchUser()
+      }
+
     } catch (error) {
-      console.error('Error en callback SSO:', error)
+      console.error('Error procesando token SSO:', error)
       throw error
     } finally {
       processingSSO.value = false
@@ -116,7 +124,7 @@ export const useAuthStore = defineStore('auth', () => {
     isReady,
     userAvatar, // Exported getter
     login,
-    handleCallback,
+    handleDirectToken,
     logout,
     fetchUser,
     checkAuth,

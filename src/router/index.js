@@ -69,10 +69,13 @@ const router = createRouter({
 })
 
 // --- GUARDIA DE NAVEGACIÓN ---
+// --- GUARDIA DE NAVEGACIÓN ---
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
 
-  // 0. Si vamos al Callback o Unauthorized, dejamos pasar SIEMPRE
+  // 0. Si vamos al Callback (Legacy) o Unauthorized, dejamos pasar SIEMPRE
+  // Nota: Con la lógica anterior, el 'CallbackView' ya casi no se usará si entra por aquí,
+  // pero lo dejamos por compatibilidad o fallback explícito.
   if (to.name === 'callback' || to.name === 'unauthorized') {
     return next()
   }
@@ -84,6 +87,7 @@ router.beforeEach(async (to, from, next) => {
     if (!isAuthenticated) {
       console.log("🔒 Acceso Hija: Usuario sin sesión. Iniciando flujo SSO...");
       authStore.login();
+      // login() redirige a ventana completa, así que paramos aquí (aunque en SPA 'return' es suficiente)
       return;
     }
   }
