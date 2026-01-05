@@ -2,8 +2,8 @@ import api from '@/api/axios';
 
 export default {
     // GET /api/inventarios
-    getAll() {
-        return api.get('/inventarios');
+    getAll(params = {}) {
+        return api.get('/inventarios', { params });
     },
     // GET /api/inventarios/{id}
     getById(id) {
