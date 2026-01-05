@@ -1,0 +1,91 @@
+<script setup>
+const props = defineProps({
+    isOpen: Boolean,
+    item: Object // Event structure
+});
+
+const emit = defineEmits(['close', 'delete']);
+
+const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return new Intl.DateTimeFormat('es-ES', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    }).format(date);
+};
+
+// FullCalendar event object structure helper
+// We are passing our own "selectedEvent" object which we constructed in handleEventClick
+// structure: { id, title, start, end, is_all_day, event_category_id, description, location }
+</script>
+
+<template>
+    <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden animate-fade-in-up">
+
+            <!-- Header with Color Bar if available (hard to get color without category obj, but we could pass it) -->
+            <div class="h-2 bg-azul-cope w-full"></div>
+
+            <div class="p-6">
+                <!-- Title -->
+                <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">
+                    {{ item?.title }}
+                </h3>
+
+                <!-- Category Badge -->
+                <div v-if="item?.category_name" class="mb-4">
+                    <span
+                        class="px-2 py-1 rounded-md text-xs font-bold inline-block"
+                        :style="{ backgroundColor: item.category_color || '#3b82f6', color: item.category_text_color || '#ffffff' }"
+                    >
+                        {{ item.category_name }}
+                    </span>
+                </div>
+
+                <!-- Date -->
+                <div class="flex items-start gap-3 text-gray-600 dark:text-gray-300 mb-4">
+                    <svg class="w-5 h-5 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    <div>
+                        <p class="text-sm font-medium">{{ formatDate(item?.start) }}</p>
+                        <p v-if="item?.end" class="text-sm text-gray-500">Hasta: {{ formatDate(item?.end) }}</p>
+                    </div>
+                </div>
+
+                 <!-- Location -->
+                <div v-if="item?.location" class="flex items-start gap-3 text-gray-600 dark:text-gray-300 mb-4">
+                     <svg class="w-5 h-5 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    <p class="text-sm">{{ item.location }}</p>
+                </div>
+
+                <!-- Description -->
+                <div v-if="item?.description" class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border border-gray-100 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
+                    {{ item.description }}
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/30 flex justify-between items-center border-t border-gray-100 dark:border-gray-700">
+                <button
+                    @click="$emit('delete', item.id)"
+                    class="text-red-600 hover:text-red-700 text-sm font-medium flex items-center gap-1 hover:bg-red-50 dark:hover:bg-red-900/20 px-3 py-2 rounded-lg transition-colors"
+                >
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    Eliminar
+                </button>
+
+                <button
+                    @click="$emit('close')"
+                    class="bg-white dark:bg-gray-600 text-gray-700 dark:text-white border border-gray-300 dark:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-500 px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-all"
+                >
+                    Cerrar
+                </button>
+            </div>
+
+        </div>
+    </div>
+</template>

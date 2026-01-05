@@ -11,6 +11,8 @@ import AgencyView from '@/views/admin/agencies/AgencyView.vue'
 import InventoryView from '@/views/admin/inventory/InventoryView.vue'
 import CategoryView from '@/views/admin/inventory/CategoryView.vue'
 import SoftwareInventoryView from '@/views/admin/software-inventory/SoftwareInventoryView.vue'
+import EventsManagerView from '@/views/admin/events/EventsManagerView.vue'
+import EventCategoryView from '@/views/admin/events/EventCategoryView.vue'
 import UnauthorizedView from '@/views/UnauthorizedView.vue'
 
 const router = createRouter({
@@ -68,6 +70,18 @@ const router = createRouter({
           component: SoftwareInventoryView,
           meta: { title: 'Inventario de Software' }
         },
+        {
+          path: 'calendario',
+          name: 'events-calendar',
+          component: EventsManagerView,
+          meta: { title: 'Calendario de Eventos' }
+        },
+        {
+          path: 'calendario/categorias',
+          name: 'event-categories',
+          component: EventCategoryView,
+          meta: { title: 'Categorías de Eventos' }
+        }
       ]
     },
 

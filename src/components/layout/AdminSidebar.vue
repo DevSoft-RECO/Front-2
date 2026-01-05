@@ -214,6 +214,15 @@ const menuItems = [
             { label: 'Listado', route: '/admin/inventario-software' }
         ]
     },
+    {
+        id: 'calendario',
+        label: 'Calendario',
+        iconSvg: '<path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />',
+        children: [
+            { label: 'Agenda', route: '/admin/calendario' },
+            { label: 'Categorías', route: '/admin/calendario/categorias' }
+        ]
+    },
     // Datos de ejemplo para probar submenús
     /*
     {

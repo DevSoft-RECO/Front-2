@@ -65,25 +65,48 @@
       </div>
 
 
-      <div class="rounded-xl shadow-sm border p-8 h-64 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center text-center">
-        <div class="bg-gray-50 dark:bg-gray-700/50 p-6 rounded-full mb-4">
-             <svg class="w-12 h-12 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" /></svg>
-        </div>
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Área de Trabajo Hija</h3>
-        <p class="text-gray-500 dark:text-gray-400 max-w-sm mt-2">
-            Sesión compartida exitosamente.
-        </p>
+      <!-- Calendar Widget -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                  <svg class="w-5 h-5 text-azul-cope" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  Agenda de Actividades
+              </h3>
+              <RouterLink to="/admin/calendario" class="text-sm text-azul-cope hover:underline font-medium">Ver Todo</RouterLink>
+          </div>
+          <div class="overflow-hidden">
+             <EventCalendar
+                initialView="dayGridMonth"
+                height="500px"
+                :refresh-trigger="refreshTrigger"
+                @eventClick="handleEventClick"
+            />
+          </div>
       </div>
+
+       <EventDetailsModal
+            :isOpen="showModal"
+            :item="selectedEvent"
+            @close="showModal = false"
+            @delete="handleDelete"
+        />
 
     </div>
 
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useAuthStore } from '@/stores/auth';
+import EventCalendar from '@/views/admin/events/components/EventCalendar.vue';
+import EventDetailsModal from '@/views/admin/events/components/EventDetailsModal.vue';
+import EventService from '@/services/events/EventService';
+import Swal from 'sweetalert2';
 
 const authStore = useAuthStore();
+const showModal = ref(false);
+const selectedEvent = ref(null);
+const refreshTrigger = ref(0);
 
 const userRole = computed(() => {
     if (authStore.user?.roles && authStore.user.roles.length > 0) {
@@ -101,6 +124,60 @@ const returnToPortal = () => {
     // Redirigimos al Dashboard de la Madre
     window.location.href = `${motherAppUrl}/admin/dashboard`;
 }
+
+// Event Handling
+const handleEventClick = (clickInfo) => {
+    const props = clickInfo.event.extendedProps;
+    selectedEvent.value = {
+        id: clickInfo.event.id,
+        title: clickInfo.event.title,
+        start: clickInfo.event.startStr,
+        end: clickInfo.event.endStr,
+        is_all_day: clickInfo.event.allDay,
+        event_category_id: props.category?.id,
+        category_name: props.category?.name,
+        category_color: props.category?.color,
+        category_text_color: props.category?.text_color,
+        description: props.description,
+        location: props.location
+    };
+    showModal.value = true;
+};
+
+const refreshCalendar = () => {
+    refreshTrigger.value++;
+};
+
+
+
+const handleDelete = async (id) => {
+    try {
+        const res = await Swal.fire({
+            title: '¿Eliminar evento?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (res.isConfirmed) {
+            await EventService.delete(id);
+            showModal.value = false;
+            refreshCalendar();
+             Swal.fire({
+                icon: 'success',
+                title: 'Eliminado',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        Swal.fire('Error', 'No se pudo eliminar', 'error');
+    }
+};
 </script>
 
 <style scoped>
