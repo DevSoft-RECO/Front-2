@@ -20,5 +20,10 @@ export default {
     // DELETE /api/inventarios/{id}
     delete(id) {
         return api.delete(`/inventarios/${id}`);
+    },
+
+    // GET /api/inventarios/exportar
+    export() {
+        return api.get('/inventarios/exportar', { responseType: 'blob' });
     }
 }

@@ -89,9 +89,13 @@ const loadAgencies = async () => {
 
 // Watch para resetear página al filtrar
 // Watch para recargar datos al filtrar
+let searchTimeout;
 watch([searchQuery, selectedAgency, selectedCategory], () => {
-    currentPage.value = 1; // Reset to first page
-    loadInventory();
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        currentPage.value = 1;
+        loadInventory();
+    }, 500);
 });
 
 // Watch para recargar al cambiar de página (next/prev) - aunque la lógica de botones llama directly a loadInventory tambien
@@ -171,6 +175,34 @@ const prevPage = () => {
 
 
 
+const handleExport = async () => {
+    try {
+        const response = await InventoryService.export();
+
+        // Create a fake URL for the blob
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+
+        // Filename
+        link.setAttribute('download', 'inventario.csv');
+
+        document.body.appendChild(link);
+        link.click();
+
+        // Cleanup
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+        console.error('Error exportando inventario:', error);
+        Swal.fire('Error', 'No se pudo exportar el inventario', 'error');
+    }
+};
+
+
+
+
 onMounted(() => {
     loadInventory();
     loadAgencies();
@@ -220,6 +252,14 @@ onMounted(() => {
                         placeholder="Buscar activo..."
                     >
                 </div>
+
+                <button
+                    @click="handleExport"
+                    class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
+                >
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                    <span class="hidden sm:inline">Exportar</span>
+                </button>
 
                 <button
                     @click="openCreateModal"
