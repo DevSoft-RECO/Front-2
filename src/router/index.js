@@ -10,6 +10,7 @@ import DashboardView from '@/views/DashboardView.vue'
 import AgencyView from '@/views/admin/agencies/AgencyView.vue'
 import InventoryView from '@/views/admin/inventory/InventoryView.vue'
 import CategoryView from '@/views/admin/inventory/CategoryView.vue'
+import SoftwareInventoryView from '@/views/admin/software-inventory/SoftwareInventoryView.vue'
 import UnauthorizedView from '@/views/UnauthorizedView.vue'
 
 const router = createRouter({
@@ -61,6 +62,12 @@ const router = createRouter({
           component: CategoryView,
           meta: { title: 'Gestión de Categorías' }
         },
+        {
+          path: 'inventario-software',
+          name: 'inventario-software',
+          component: SoftwareInventoryView,
+          meta: { title: 'Inventario de Software' }
+        },
       ]
     },
 
@@ -98,7 +105,7 @@ router.beforeEach(async (to, from, next) => {
     if (!authStore.isReady) {
       try {
         await authStore.fetchUser();
-      } catch (error) {
+      } catch {
         // Si falla, el store ya maneja el logout, pero detenemos navegación
         return;
       }

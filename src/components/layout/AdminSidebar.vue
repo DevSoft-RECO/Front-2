@@ -206,6 +206,14 @@ const menuItems = [
             { label: 'Categorías', route: '/admin/categorias' }
         ]
     },
+    {
+        id: 'software',
+        label: 'Inv. Software',
+        iconSvg: '<path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />',
+        children: [
+            { label: 'Listado', route: '/admin/inventario-software' }
+        ]
+    },
     // Datos de ejemplo para probar submenús
     /*
     {

@@ -18,8 +18,39 @@
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
+        <!-- Inventario General -->
+        <RouterLink to="/admin/inventarios" class="cursor-pointer group">
+            <div class="p-6 rounded-xl shadow-sm border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 transition-all hover:shadow-md hover:border-azul-cope h-full">
+            <div class="flex items-center justify-between">
+                <div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Activos</p>
+                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 group-hover:text-azul-cope transition-colors">Inventario General</h3>
+                </div>
+                <div class="p-3 rounded-lg bg-blue-50 text-azul-cope dark:bg-blue-900/20 dark:text-blue-300">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" /></svg>
+                </div>
+            </div>
+            </div>
+        </RouterLink>
+
+        <!-- Inventario Software -->
+        <RouterLink to="/admin/inventario-software" class="cursor-pointer group">
+            <div class="p-6 rounded-xl shadow-sm border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 transition-all hover:shadow-md hover:border-azul-cope h-full">
+            <div class="flex items-center justify-between">
+                <div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Licencias</p>
+                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 group-hover:text-azul-cope transition-colors">Inv. Software</h3>
+                </div>
+                <div class="p-3 rounded-lg bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-300">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                </div>
+            </div>
+            </div>
+        </RouterLink>
+
+        <!-- Portal Principal -->
         <a @click="returnToPortal" class="cursor-pointer group">
-            <div class="p-6 rounded-xl shadow-sm border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 transition-all hover:shadow-md hover:border-azul-cope">
+            <div class="p-6 rounded-xl shadow-sm border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 transition-all hover:shadow-md hover:border-azul-cope h-full">
             <div class="flex items-center justify-between">
                 <div>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Sistema</p>
