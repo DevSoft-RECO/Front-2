@@ -8,11 +8,14 @@
                   Hola, <span class="text-azul-cope">{{ authStore.user.name }}</span>
               </h2>
               <p class="text-gray-500 dark:text-gray-400 mt-1">
-                  Bienvenido a la App de Inventario IT. Tu rol es: <span class="font-semibold">{{ userRole }}</span>
+                  Bienvenido a la App de Inventario IT.
               </p>
           </div>
-          <div class="mt-4 md:mt-0">
-             <!-- Podríamos poner algo aquí -->
+          <div>
+              <a @click="returnToPortal" class="cursor-pointer text-sm font-medium text-azul-cope hover:underline flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                  Volver al Portal
+              </a>
           </div>
       </div>
 
@@ -47,21 +50,6 @@
             </div>
             </div>
         </RouterLink>
-
-        <!-- Portal Principal -->
-        <a @click="returnToPortal" class="cursor-pointer group">
-            <div class="p-6 rounded-xl shadow-sm border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 transition-all hover:shadow-md hover:border-azul-cope h-full">
-            <div class="flex items-center justify-between">
-                <div>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Sistema</p>
-                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 group-hover:text-azul-cope transition-colors">Portal Principal</h3>
-                </div>
-                <div class="p-3 rounded-lg bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-300">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-                </div>
-            </div>
-            </div>
-        </a>
       </div>
 
 
@@ -96,7 +84,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import EventCalendar from '@/views/admin/events/components/EventCalendar.vue';
 import EventDetailsModal from '@/views/admin/events/components/EventDetailsModal.vue';
@@ -108,12 +96,6 @@ const showModal = ref(false);
 const selectedEvent = ref(null);
 const refreshTrigger = ref(0);
 
-const userRole = computed(() => {
-    if (authStore.user?.roles && authStore.user.roles.length > 0) {
-        return authStore.user.roles[0];
-    }
-    return authStore.user?.puesto || 'Invitado';
-});
 
 
 // === LÓGICA DE RETORNO ===

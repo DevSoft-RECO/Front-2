@@ -9,7 +9,6 @@ const props = defineProps({
     inventoryCode: String // For display purpose
 });
 
-const emit = defineEmits(['close']);
 
 const incidents = ref([]);
 const loading = ref(false);
@@ -60,6 +59,30 @@ const handleAddIncident = async () => {
     } catch (error) {
         console.error(error);
         Swal.fire('Error', 'No se pudo registrar el incidente', 'error');
+    }
+};
+
+const handleDelete = async (id) => {
+    const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: "No podrás revertir esto",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
+        try {
+            await IncidentService.delete(id);
+            Swal.fire('Eliminado', 'El incidente ha sido eliminado', 'success');
+            loadIncidents();
+        } catch (error) {
+            console.error(error);
+            Swal.fire('Error', 'No se pudo eliminar el incidente', 'error');
+        }
     }
 };
 </script>
@@ -146,6 +169,14 @@ const handleAddIncident = async () => {
                             <p class="mt-1 text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-md border border-gray-100 dark:border-gray-700">
                                 {{ inc.descripcion }}
                             </p>
+                            <div class="mt-2 flex justify-end">
+                                <button @click="handleDelete(inc.id)" class="text-red-500 hover:text-red-700 text-xs flex items-center gap-1 transition-colors" title="Eliminar incidente">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    Eliminar
+                                </button>
+                            </div>
                         </div>
                     </li>
                 </ul>

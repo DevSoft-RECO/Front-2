@@ -11,5 +11,10 @@ export default {
     // Registra un nuevo incidente
     create(data) {
         return api.post('/incidentes', data);
+    },
+
+    // DELETE /api/incidentes/{id}
+    delete(id) {
+        return api.delete(`/incidentes/${id}`);
     }
 }
