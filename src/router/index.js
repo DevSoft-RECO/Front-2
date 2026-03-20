@@ -104,14 +104,15 @@ router.beforeEach(async (to, from, next) => {
   const isAuthenticated = !!authStore.token
 
   // Caso 1: Ruta requiere Auth y no tenemos token
-  if (to.matched.some(record => record.meta.requiresAuth) || to.path === '/') {
+  if (to.matched.some((record) => record.meta.requiresAuth) || to.path === '/') {
     if (!isAuthenticated) {
-      console.log("🔒 Acceso Hija: Usuario sin sesión. Iniciando flujo SSO...");
-      authStore.login();
-      // login() redirige a ventana completa, así que paramos aquí (aunque en SPA 'return' es suficiente)
-      return;
+      console.log('🔒 Acceso Hija: Usuario sin sesión. Iniciando flujo SSO...')
+      authStore.login()
+      // CRÍTICO: Bloqueamos a Vue Router mientras redirecciona
+      return next(false)
     }
   }
+
 
   // Caso 2: Estamos autenticados, verificar identidad y permisos
   if (isAuthenticated) {
