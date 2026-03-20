@@ -8,7 +8,7 @@ import router from './router';
 
 // 1. ImportamosStores y Utilidades
 import { useLayoutStore } from '@/stores/layout';
-import { setupSessionGuards } from '@/utils/sessionGuards';
+import { startSessionGuards } from '@/utils/sessionGuards';
 
 const app = createApp(App);
 const pinia = createPinia(); // Creamos la instancia explícitamente
@@ -22,7 +22,8 @@ const layoutStore = useLayoutStore();
 layoutStore.initTheme();
 
 // 4. Iniciar Guardianes de Sesión (PKCE)
-setupSessionGuards();
+startSessionGuards();
+
 
 
 // 4. (Opcional) Detectar cambios del sistema en tiempo real
