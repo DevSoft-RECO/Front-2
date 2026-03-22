@@ -11,11 +11,13 @@ const REDIRECT_URI = import.meta.env.VITE_REDIRECT_URI
 
 export const useAuthStore = defineStore('auth', () => {
   // MIGRACIÓN DE ALMACENAMIENTO (Limpia cachés viejas si cambia de arquitectura)
-  const STORAGE_VERSION = 'v2_pkce'; 
+  const STORAGE_VERSION = 'v3_hija2_pkce'; 
   if (localStorage.getItem('yk_storage_version') !== STORAGE_VERSION) {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user_data');
-    sessionStorage.removeItem('user_data');
+    const keysToRemove = ['access_token', 'user_data', 'pkce_verifier'];
+    keysToRemove.forEach(k => {
+       localStorage.removeItem(k);
+       sessionStorage.removeItem(k);
+    });
     localStorage.setItem('yk_storage_version', STORAGE_VERSION);
   }
 
@@ -60,13 +62,11 @@ export const useAuthStore = defineStore('auth', () => {
 
       token.value = response.data.access_token;
       localStorage.setItem('access_token', token.value);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token.value}`;
       sessionStorage.removeItem('pkce_verifier');
 
-      // Limpiamos el cache de usuario para forzar una carga limpia
-      user.value = null;
-      sessionStorage.removeItem('user_data');
-
-      await fetchUser();
+      // ¡ESTO ES VITAL! Pedimos datos de usuario ignorando cualquier basura vieja
+      await fetchUser(true);
     } catch (error) {
       console.error('Error procesando el canje PKCE:', error)
       throw error
@@ -90,10 +90,16 @@ export const useAuthStore = defineStore('auth', () => {
    * Obtiene los datos del usuario desde el Backend LOCAL (Puerto 8001/8003)
    * Implementa bloqueo de peticiones concurrentes.
    */
-  async function fetchUser() {
+  async function fetchUser(force = false) {
     if (!token.value) {
       isReady.value = true
       return
+    }
+
+    // SI FORCE ES TRUE, IGNORAMOS EL CACHÉ Y OBLIGAMOS A CONSULTAR AL BACKEND
+    if (!force && user.value) {
+      isReady.value = true;
+      return;
     }
 
     // Si ya hay una petición en curso, devolvemos su promesa
