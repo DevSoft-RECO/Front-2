@@ -133,7 +133,7 @@ router.beforeEach(async (to, from, next) => {
       const motherAppUrl = import.meta.env.VITE_MOTHER_APP_URL || 'http://localhost:5173';
 
       console.warn(`⛔ Acceso denegado: Usuario no tiene el rol '${to.meta.role}'. Redirigiendo a App Madre...`);
-      window.location.href = `${motherAppUrl}/apps`;
+      // window.location.href = `${motherAppUrl}/apps`;
       return;
     }
   }
