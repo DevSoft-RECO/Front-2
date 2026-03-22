@@ -2,6 +2,7 @@ import { preparePKCE } from '@/utils/auth-crypto';
 
 // Variables de entorno
 const MOTHER_API_URL = import.meta.env.VITE_MOTHER_API_URL || 'http://localhost:8000';
+const MOTHER_APP_URL = import.meta.env.VITE_MOTHER_APP_URL || 'http://localhost:5173';
 const CLIENT_ID = import.meta.env.VITE_CLIENT_ID;
 const REDIRECT_URI = import.meta.env.VITE_REDIRECT_URI;
 
@@ -32,8 +33,8 @@ export default {
    */
   logout() {
     this.logoutLocal();
-    // Redirigir al logout de la Madre (Backend Passport)
-    window.location.href = `${MOTHER_API_URL}/logout`;
+    // Redirigir al logout de la Madre (Frontend del Portal)
+    window.location.href = `${MOTHER_APP_URL}/logout`;
   },
 
   logoutLocal() {
