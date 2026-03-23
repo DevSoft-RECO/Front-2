@@ -36,11 +36,19 @@ export const useAuthStore = defineStore('auth', () => {
   // --- ACTIONS ---
 
   /**
-   * Inicia el flujo PKCE
+   * Inicia el flujo de redirección a Microsoft/Laravel (PKCE)
+   * @param {String} redirectTo URL a la que volver tras el login (opcional)
    */
-  async function login() {
-    processingSSO.value = true
-    await AuthService.login()
+  async function login(redirectTo = null) {
+    if (processingSSO.value) return; // Evitar múltiples redirecciones
+    processingSSO.value = true;
+    
+    if (redirectTo) {
+      sessionStorage.setItem('auth_redirect_to', redirectTo);
+    }
+    
+    await AuthService.login();
+    // processingSSO se reseteará al volver del callback
   }
 
   /**

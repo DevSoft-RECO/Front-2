@@ -46,8 +46,14 @@ onMounted(async () => {
     subStatus.value =
       'Bienvenido a los sistemas internos de la Cooperativa YAMAN KUTX.'
 
+    // Redirección Dinámica: Volver a donde el usuario intentaba entrar
+    const redirectUrl = sessionStorage.getItem('auth_redirect_to') || { name: 'dashboard' };
+    if (sessionStorage.getItem('auth_redirect_to')) {
+       sessionStorage.removeItem('auth_redirect_to');
+    }
+
     setTimeout(() => {
-      router.push({ name: 'dashboard' })
+      router.push(redirectUrl)
     }, 900)
 
   } catch (e) {

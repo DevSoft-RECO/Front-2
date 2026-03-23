@@ -107,7 +107,7 @@ router.beforeEach(async (to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth) || to.path === '/') {
     if (!isAuthenticated) {
       console.log('🔒 Acceso Hija: Usuario sin sesión. Iniciando flujo SSO...')
-      authStore.login()
+      authStore.login(to.fullPath)
       // CRÍTICO: Bloqueamos a Vue Router mientras redirecciona
       return next(false)
     }
@@ -121,20 +121,18 @@ router.beforeEach(async (to, from, next) => {
       try {
         await authStore.fetchUser();
       } catch {
-        // Si falla, el store ya maneja el logout, pero detenemos navegación
-        return;
+        // RE-AUTENTICACIÓN FLUIDA: 
+        // Si el token falló, intentamos PKCE antes de rendirnos
+        authStore.login(to.fullPath);
+        return next(false);
       }
     }
 
 
     // Verificar Rol
     if (to.meta.role && !authStore.hasRole(to.meta.role)) {
-      // Usuario logueado pero SIN ROL -> Redirigir a App Madre
-      const motherAppUrl = import.meta.env.VITE_MOTHER_APP_URL || 'http://localhost:5173';
-
-      console.warn(`⛔ Acceso denegado: Usuario no tiene el rol '${to.meta.role}'. Redirigiendo a App Madre...`);
-      // window.location.href = `${motherAppUrl}/apps`;
-      return;
+      console.warn(`⛔ Acceso denegado: Usuario no tiene el rol '${to.meta.role}'. Redirigiendo a pantalla de error...`);
+      return next({ name: 'unauthorized' });
     }
   }
 
