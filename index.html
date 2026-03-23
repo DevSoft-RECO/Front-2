@@ -5,155 +5,223 @@
   <meta charset="UTF-8">
   <link rel="icon" href="/favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Inventario IT</title>
+  <title>TICKETS</title>
+  <script>
+    // PRE-BOOT THEME DETECTION: Prevents white flash during loading
+    (function () {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+  </script>
   <style>
-    /* --- FONDO Y CONTENEDOR PRINCIPAL --- */
+    /* --- NEW POINTED RINGS DESIGN --- */
+    :root {
+      --bg-light: radial-gradient(circle at center, #ffffff 0%, #f0f5f9 100%);
+      --bg-dark: radial-gradient(circle at center, #1a202c 0%, #0f172a 100%);
+
+      /* Brand Color Palette */
+      --color-white: #ffffff;
+      --color-green-dark: #027b10;
+      --color-blue: #002d75;
+      --color-green-light: #09b61d;
+      --color-navy: #001f3f;
+      --color-grey-sub: #7f8c8d;
+      --color-grey-sub-dark: #94a3b8;
+      --color-white-dark: #f1f5f9;
+    }
+
     #loading-wrapper {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      /* Degradado sutil para dar un look premium (Gris azulado muy claro a Blanco) */
-      background: radial-gradient(circle, #ffffff 0%, #f0f4f8 100%);
-      z-index: 9999;
-      transition: opacity 0.5s ease;
-    }
-
-    /* --- CAJA DEL LOADER --- */
-    .loader-box {
-      position: relative;
-      width: 160px;
-      height: 160px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    /* --- ANILLO 1: AZUL MARINO (Base Estática/Lenta) --- */
-    .ring-navy {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      border: 2px solid rgba(0, 31, 63, 0.1);
-      /* Azul muy tenue de base */
-      border-top-color: #001f3f;
-      /* Azul Marino Fuerte */
-      border-bottom-color: #001f3f;
-      animation: spin-slow 3s linear infinite;
-      box-shadow: 0 0 10px rgba(0, 31, 63, 0.05);
-    }
-
-    /* --- ANILLO 2: VERDE (Energía/Velocidad) --- */
-    .ring-green {
-      position: absolute;
-      width: 85%;
-      /* Un poco más pequeño para crear capas */
-      height: 85%;
-      border-radius: 50%;
-      border: 3px solid transparent;
-      border-top-color: #2ecc40;
-      /* Verde Corporativo */
-      border-right-color: #2ecc40;
-      /* EL EFECTO DESLUMBRANTE: Sombra de luz (Glow) */
-      filter: drop-shadow(0 0 4px rgba(46, 204, 64, 0.6));
-      animation: spin-fast 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
-    }
-
-    /* --- TEXTO CENTRAL --- */
-    .brand-content {
+      inset: 0;
       display: flex;
       flex-direction: column;
+      justify-content: center;
       align-items: center;
+      background: var(--bg-light);
+      z-index: 9999;
+      transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      gap: 3rem;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    .dark #loading-wrapper {
+      background: var(--bg-dark);
+    }
+
+    #page {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      width: 200px;
+      height: 200px;
+      perspective: 1000px;
+    }
+
+    #h3 {
+      color: var(--color-navy);
+      font-weight: 900;
+      font-size: 1.2rem;
+      letter-spacing: 2px;
       z-index: 10;
     }
 
-    .brand-title {
-      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      font-weight: 900;
-      font-size: 1.1rem;
-      letter-spacing: 3px;
-      /* Espaciado estilo "Tech" */
-      color: #001f3f;
-      /* Azul Marino */
-      line-height: 1.1;
-      text-transform: uppercase;
+    .dark #h3 {
+      color: var(--color-white-dark);
+    }
+
+    /* --- POINTED RINGS --- */
+    #ring {
+      width: 190px;
+      height: 190px;
+      border: 1px solid transparent;
+      border-radius: 50%;
+      position: absolute;
+    }
+
+    /* Ring 1 - Navy */
+    #ring:nth-child(1) {
+      border-bottom: 8px solid var(--color-navy);
+      animation: rotate1 2s linear infinite;
+    }
+
+    .dark #ring:nth-child(1) {
+      border-bottom-color: var(--color-white-dark);
+    }
+
+    /* Ring 2 - Green Dark */
+    #ring:nth-child(2) {
+      border-bottom: 8px solid var(--color-green-dark);
+      animation: rotate2 2s linear infinite;
+    }
+
+    /* Ring 3 - Blue */
+    #ring:nth-child(3) {
+      border-bottom: 8px solid var(--color-blue);
+      animation: rotate3 2s linear infinite;
+    }
+
+    /* Ring 4 - Green Light */
+    #ring:nth-child(4) {
+      border-bottom: 8px solid var(--color-green-light);
+      animation: rotate4 2s linear infinite;
+    }
+
+    @keyframes rotate1 {
+      from {
+        transform: rotateX(50deg) rotateZ(110deg);
+      }
+
+      to {
+        transform: rotateX(50deg) rotateZ(470deg);
+      }
+    }
+
+    @keyframes rotate2 {
+      from {
+        transform: rotateX(20deg) rotateY(50deg) rotateZ(20deg);
+      }
+
+      to {
+        transform: rotateX(20deg) rotateY(50deg) rotateZ(380deg);
+      }
+    }
+
+    @keyframes rotate3 {
+      from {
+        transform: rotateX(40deg) rotateY(130deg) rotateZ(450deg);
+      }
+
+      to {
+        transform: rotateX(40deg) rotateY(130deg) rotateZ(90deg);
+      }
+    }
+
+    @keyframes rotate4 {
+      from {
+        transform: rotateX(70deg) rotateZ(270deg);
+      }
+
+      to {
+        transform: rotateX(70deg) rotateZ(630deg);
+      }
+    }
+
+    /* --- BRANDING TEXTS --- */
+    .brand-group {
       text-align: center;
+      animation: pulse-brand 2s ease-in-out infinite;
     }
 
-    .brand-subtitle {
-      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      font-size: 0.65rem;
-      color: #2ecc40;
-      /* Verde */
-      letter-spacing: 4px;
-      margin-top: 4px;
-      font-weight: 600;
+    .brand-main {
+      font-weight: 900;
+      font-size: 1.5rem;
+      color: var(--color-navy);
+      letter-spacing: 0.15em;
+      margin: 0;
       text-transform: uppercase;
-      opacity: 0.8;
     }
 
-    /* --- ANIMACIONES --- */
-
-    /* Giro constante y lento */
-    @keyframes spin-slow {
-      0% {
-        transform: rotate(0deg);
-      }
-
-      100% {
-        transform: rotate(360deg);
-      }
+    .brand-main span {
+      color: var(--color-green-light);
     }
 
-    /* Giro rápido con efecto elástico ss*/
-    @keyframes spin-fast {
-      0% {
-        transform: rotate(0deg);
-      }
-
-      100% {
-        transform: rotate(360deg);
-      }
+    .brand-sub {
+      font-size: 0.7rem;
+      color: var(--color-grey-sub);
+      letter-spacing: 0.6em;
+      margin: 4px 0 0 0;
+      text-transform: uppercase;
+      font-weight: 600;
     }
 
-    /* Pequeño pálpito en el texto para dar vida */
-    .brand-content {
-      animation: breathe 3s infinite ease-in-out;
+    .dark .brand-main {
+      color: var(--color-white-dark);
     }
 
-    @keyframes breathe {
+    .dark .brand-sub {
+      color: var(--color-grey-sub-dark);
+    }
+
+    @keyframes pulse-brand {
 
       0%,
       100% {
-        transform: scale(1);
         opacity: 1;
+        transform: scale(1);
       }
 
       50% {
-        transform: scale(1.02);
-        opacity: 0.9;
+        opacity: 0.85;
+        transform: scale(0.98);
       }
     }
   </style>
 </head>
 
 <body>
-
   <div id="loading-wrapper">
-    <div class="loader-box">
-      <div class="ring-navy"></div>
-      <div class="ring-green"></div>
-
-      <div class="brand-content">
-        <div class="brand-title">YAMAN</div>
-        <div class="brand-title">KUTX</div>
-        <div class="brand-subtitle">SISTEMAS</div>
+    <div id="page">
+      <div id="container">
+        <div id="ring"></div>
+        <div id="ring"></div>
+        <div id="ring"></div>
+        <div id="ring"></div>
+        <div id="h3">TICKETS</div>
       </div>
+    </div>
+
+    <div class="brand-group">
+      <h1 class="brand-main">YAMAN<span> KUTX</span></h1>
+      <p class="brand-sub">SISTEMAS</p>
     </div>
   </div>
 
