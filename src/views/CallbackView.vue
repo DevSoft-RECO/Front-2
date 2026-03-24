@@ -57,10 +57,9 @@ onMounted(async () => {
     }, 900)
 
   } catch (e) {
-    console.error(e)
+    console.error("Detalle del error:", e)
     status.value = 'Error de autenticación'
-    subStatus.value =
-      'No fue posible validar tu sesión. Por favor, intenta nuevamente.'
+    subStatus.value = `Error: ${e.response?.data?.message || e.message || 'Desconocido'}. Revisa la consola para más detalles.`
   }
 })
 </script>

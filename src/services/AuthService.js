@@ -38,10 +38,11 @@ export default {
   },
 
   logoutLocal() {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user_data');
-    sessionStorage.removeItem('user_data');
-    sessionStorage.removeItem('pkce_verifier');
+    const keysToRemove = ['access_token', 'user_data', 'pkce_verifier'];
+    keysToRemove.forEach(k => {
+      localStorage.removeItem(k);
+      sessionStorage.removeItem(k);
+    });
   }
 };
 

@@ -6,11 +6,11 @@ export const startSessionGuards = () => {
   // REGLA A: EL "HEARTBEAT" CADA 5 MINUTOS (Vigilante)
   // ----------------------------------------------------
   setInterval(() => {
-    const token = localStorage.getItem('access_token');
+    const token = sessionStorage.getItem('access_token');
     if (token) {
-      // Un sub-proceso silencioso al Backend Local (que valida con la Madre)
-      // Usamos el cliente 'api' que ya tiene el puerto 8001 configurado
-      api.get('/me')
+      // Un sub-proceso silencioso a la Madre.
+      const motherApi = import.meta.env.VITE_MOTHER_API_URL || 'http://localhost:8000';
+      api.get(motherApi + '/api/me')
         .catch(() => console.log('El heartbeat detectó sesión caída.'));
     }
   }, 5 * 60 * 1000);
@@ -25,7 +25,7 @@ export const startSessionGuards = () => {
   if (now < alertTime) {
     const msUntilAlert = alertTime.getTime() - now.getTime();
     setTimeout(() => {
-      if (localStorage.getItem('access_token')) {
+      if (sessionStorage.getItem('access_token')) {
         Swal.fire({
           toast: true,
           position: 'top-end',

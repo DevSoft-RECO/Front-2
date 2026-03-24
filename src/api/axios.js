@@ -14,17 +14,17 @@ const api = axios.create({
 // Antes de que salga la petición, le pegamos el token si existe
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('access_token');
+    const token = sessionStorage.getItem('access_token');
 
     console.log(`[Axios Local] Preparando petición a: ${config.url}`);
 
     if (token) {
-      console.log("[Axios Local] Token encontrado en localStorage. Agregando header Authorization.");
+      console.log("[Axios Local] Token encontrado en sessionStorage. Agregando header Authorization.");
       // Aseguramos que no haya doble Bearer por si acaso
       const authHeader = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
       config.headers.Authorization = authHeader;
     } else {
-      console.warn("[Axios Local] ADVERTENCIA: No se encontró token en localStorage. La petición irá sin autenticación.");
+      console.warn("[Axios Local] ADVERTENCIA: No se encontró token en sessionStorage. La petición irá sin autenticación.");
     }
 
     return config;

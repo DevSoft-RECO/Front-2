@@ -23,7 +23,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   // --- STATE ---
   const user = ref(JSON.parse(sessionStorage.getItem('user_data') || 'null'))
-  const token = ref(localStorage.getItem('access_token') || null)
+  const token = ref(sessionStorage.getItem('access_token') || null)
   const processingSSO = ref(false)
   const isReady = ref(false)
   let fetchPromise = null
@@ -69,7 +69,7 @@ export const useAuthStore = defineStore('auth', () => {
       });
 
       token.value = response.data.access_token;
-      localStorage.setItem('access_token', token.value);
+      sessionStorage.setItem('access_token', token.value);
       axios.defaults.headers.common['Authorization'] = `Bearer ${token.value}`;
       sessionStorage.removeItem('pkce_verifier');
 
