@@ -68,7 +68,9 @@ const calendarOptions = reactive({
                 extendedProps: {
                     description: event.description,
                     location: event.location,
-                    category: event.category
+                    category: event.category,
+                    rawStart: event.start,
+                    rawEnd: event.end
                 }
             }));
             successCallback(events);

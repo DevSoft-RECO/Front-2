@@ -28,8 +28,8 @@ const handleEventClick = (clickInfo) => {
     selectedEvent.value = {
         id: clickInfo.event.id,
         title: clickInfo.event.title,
-        start: clickInfo.event.startStr,
-        end: clickInfo.event.endStr,
+        start: props.rawStart || clickInfo.event.startStr,
+        end: props.rawEnd || clickInfo.event.endStr,
         is_all_day: clickInfo.event.allDay,
         event_category_id: props.category?.id,
         description: props.description,

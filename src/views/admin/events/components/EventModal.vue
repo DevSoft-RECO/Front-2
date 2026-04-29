@@ -36,7 +36,13 @@ onMounted(async () => {
 // Helper to format ISO to datetime-local (YYYY-MM-DDTHH:mm)
 const formatDateTime = (isoStr) => {
     if (!isoStr) return '';
-    return isoStr.substring(0, 16);
+    // Reemplazar espacio por T (formato SQL) para compatibilidad con datetime-local
+    let formatted = isoStr.replace(' ', 'T');
+    // Si solo viene la fecha (YYYY-MM-DD), añadir la hora por defecto
+    if (formatted.length === 10) {
+        formatted += 'T00:00';
+    }
+    return formatted.substring(0, 16);
 };
 
 watch(() => props.isOpen, (newVal) => {
