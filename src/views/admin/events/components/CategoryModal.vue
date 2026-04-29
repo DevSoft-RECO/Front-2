@@ -1,5 +1,6 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
+import api from '@/api/axios';
 
 const props = defineProps({
     isOpen: Boolean,
@@ -11,18 +12,34 @@ const emit = defineEmits(['close', 'save']);
 const labelClass = "block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1";
 const inputClass = "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-azul-cope focus:border-transparent outline-none transition-all";
 
+const users = ref([]);
 const form = ref({
     name: '',
+    user_id: null,
     color: '#3b82f6', // Default blue
     text_color: '#ffffff'
 });
 
+const fetchUsers = async () => {
+    try {
+        const response = await api.get('/users');
+        users.value = response.data;
+    } catch (error) {
+        console.error('Error fetching users:', error);
+    }
+};
+
+onMounted(fetchUsers);
+
 watch(() => props.isOpen, (newVal) => {
     if (newVal) {
         if (props.item) {
-            form.value = { ...props.item };
+            form.value = { 
+                ...props.item,
+                user_id: props.item.user_id || null
+            };
         } else {
-            form.value = { name: '', color: '#3b82f6', text_color: '#ffffff' };
+            form.value = { name: '', user_id: null, color: '#3b82f6', text_color: '#ffffff' };
         }
     }
 });
@@ -48,8 +65,19 @@ const handleSubmit = () => {
             <div class="p-6 space-y-4">
                 <form @submit.prevent="handleSubmit">
                     <div class="mb-3">
-                        <label :class="labelClass">Nombre</label>
-                        <input v-model="form.name" type="text" :class="inputClass" required>
+                        <label :class="labelClass">Nombre de Categoría</label>
+                        <input v-model="form.name" type="text" :class="inputClass" placeholder="Ej: Ramón, Ana, Visitas..." required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label :class="labelClass">Usuario Responsable (Opcional)</label>
+                        <select v-model="form.user_id" :class="inputClass">
+                            <option :value="null">Ninguno</option>
+                            <option v-for="user in users" :key="user.id" :value="user.id">
+                                {{ user.name }} ({{ user.username }})
+                            </option>
+                        </select>
+                        <p class="mt-1 text-[10px] text-gray-400">Si seleccionas un usuario, su foto aparecerá en los eventos.</p>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4 mb-3">

@@ -43,9 +43,17 @@ const formatDate = (dateStr, isAllDay = false) => {
     return new Intl.DateTimeFormat('es-ES', options).format(date);
 };
 
-// FullCalendar event object structure helper
-// We are passing our own "selectedEvent" object which we constructed in handleEventClick
 // structure: { id, title, start, end, is_all_day, event_category_id, description, location }
+
+const getAvatarUrl = (user) => {
+    if (!user) return null;
+    const MOTHER_API_URL = import.meta.env.VITE_MOTHER_API_URL || 'http://localhost:8000';
+    let avatar = user.avatar;
+    if (avatar && !avatar.startsWith('http')) {
+        return `${MOTHER_API_URL}${avatar}`;
+    }
+    return avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`;
+};
 </script>
 
 <template>
@@ -69,6 +77,20 @@ const formatDate = (dateStr, isAllDay = false) => {
                     >
                         {{ item.category_name }}
                     </span>
+                </div>
+
+                <!-- User Info (Owner) -->
+                <div v-if="item?.user || item?.category?.user" class="flex items-center gap-3 mb-6 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-100 dark:border-gray-700">
+                    <img 
+                        :src="getAvatarUrl(item.user || item.category?.user)" 
+                        class="w-10 h-10 rounded-full object-cover border-2 border-white dark:border-gray-600 shadow-sm"
+                        @error="(e) => e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.user?.name || item.category?.user?.name)}&background=random`"
+                    />
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">Responsable</p>
+                        <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ item.user?.name || item.category?.user?.name }}</p>
+                        <p v-if="item.user?.puesto || item.category?.user?.puesto" class="text-[11px] text-gray-500 dark:text-gray-400">{{ item.user?.puesto || item.category?.user?.puesto }}</p>
+                    </div>
                 </div>
 
                 <!-- Date -->

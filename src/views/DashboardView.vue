@@ -1,25 +1,9 @@
 <template>
     <div class="space-y-6 animate-fade-in-up">
 
-      <!-- Welcome Card -->
-      <div v-if="authStore.user" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 flex flex-col md:flex-row items-center justify-between">
-          <div>
-              <h2 class="text-2xl font-bold text-gray-800 dark:text-white">
-                  Hola, <span class="text-azul-cope">{{ authStore.user.name }}</span>
-              </h2>
-              <p class="text-gray-500 dark:text-gray-400 mt-1">
-                  Bienvenido a la App de Inventario IT.
-              </p>
-          </div>
-          <div>
-              <a @click="returnToPortal" class="cursor-pointer text-sm font-medium text-azul-cope hover:underline flex items-center gap-1">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                  Volver al Portal
-              </a>
-          </div>
-      </div>
-
+      <!-- Top Actions Grid (3 cards in a row) -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
 
         <!-- Inventario General -->
         <RouterLink to="/admin/inventarios" class="cursor-pointer group">
@@ -52,20 +36,22 @@
         </RouterLink>
       </div>
 
-
-      <!-- Calendar Widget -->
+      <!-- Expanded Calendar Widget -->
       <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
-                  <svg class="w-5 h-5 text-azul-cope" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                  Agenda de Actividades
-              </h3>
-              <RouterLink to="/admin/calendario" class="text-sm text-azul-cope hover:underline font-medium">Ver Todo</RouterLink>
+          <div class="flex items-center justify-between mb-6">
+              <div>
+                  <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                      <svg class="w-6 h-6 text-azul-cope" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                      Agenda de Actividades
+                  </h3>
+                  <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Visualiza y gestiona las tareas programadas</p>
+              </div>
+              <RouterLink to="/admin/calendario" class="bg-gray-100 dark:bg-gray-700 px-4 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors font-medium">Gestionar Calendario</RouterLink>
           </div>
           <div class="overflow-hidden">
              <EventCalendar
                 initialView="dayGridMonth"
-                height="500px"
+                height="700px"
                 :refresh-trigger="refreshTrigger"
                 @eventClick="handleEventClick"
             />
@@ -85,27 +71,17 @@
 
 <script setup>
 import { ref } from 'vue';
-import { useAuthStore } from '@/stores/auth';
 import EventCalendar from '@/views/admin/events/components/EventCalendar.vue';
 import EventDetailsModal from '@/views/admin/events/components/EventDetailsModal.vue';
 import EventService from '@/services/events/EventService';
 import Swal from 'sweetalert2';
 
-const authStore = useAuthStore();
 const showModal = ref(false);
 const selectedEvent = ref(null);
 const refreshTrigger = ref(0);
 
 
 
-// === LÓGICA DE RETORNO ===
-const returnToPortal = () => {
-    // Obtenemos la URL de la madre desde el .env
-    const motherAppUrl = import.meta.env.VITE_MOTHER_APP_URL || 'http://localhost:5173';
-
-    // Redirigimos al Dashboard de la Madre
-    window.location.href = `${motherAppUrl}/admin/dashboard`;
-}
 
 // Event Handling
 const handleEventClick = (clickInfo) => {
@@ -113,15 +89,17 @@ const handleEventClick = (clickInfo) => {
     selectedEvent.value = {
         id: clickInfo.event.id,
         title: clickInfo.event.title,
-        start: clickInfo.event.startStr,
-        end: clickInfo.event.endStr,
+        start: props.rawStart || clickInfo.event.startStr,
+        end: props.rawEnd || clickInfo.event.endStr,
         is_all_day: clickInfo.event.allDay,
         event_category_id: props.category?.id,
         category_name: props.category?.name,
         category_color: props.category?.color,
         category_text_color: props.category?.text_color,
         description: props.description,
-        location: props.location
+        location: props.location,
+        user: props.user,
+        category: props.category
     };
     showModal.value = true;
 };

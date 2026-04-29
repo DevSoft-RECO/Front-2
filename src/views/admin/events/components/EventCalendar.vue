@@ -45,7 +45,7 @@ const calendarOptions = reactive({
     },
     editable: true,
     selectable: true,
-    dayMaxEvents: true,
+    dayMaxEvents: 5, // Aumentamos para que se vean más pines antes de agrupar
     height: props.height,
 
     events: async (fetchInfo, successCallback, failureCallback) => {
@@ -69,6 +69,7 @@ const calendarOptions = reactive({
                     description: event.description,
                     location: event.location,
                     category: event.category,
+                    user: event.user,
                     rawStart: event.start,
                     rawEnd: event.end
                 }
@@ -78,6 +79,64 @@ const calendarOptions = reactive({
             console.error(error);
             failureCallback(error);
         }
+    },
+
+    eventContent: (arg) => {
+        const MOTHER_API_URL = import.meta.env.VITE_MOTHER_API_URL || 'http://localhost:8000';
+        
+        // Buscamos el usuario en el evento o en su categoría
+        const user = arg.event.extendedProps.user || arg.event.extendedProps.category?.user;
+        const color = arg.event.backgroundColor || '#3b82f6';
+        let avatarUrl = user?.avatar;
+        
+        // Si el avatar es una ruta relativa, le pegamos la URL de la Madre
+        if (avatarUrl && !avatarUrl.startsWith('http')) {
+            avatarUrl = `${MOTHER_API_URL}${avatarUrl}`;
+        } else if (!avatarUrl) {
+            avatarUrl = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.name || 'U');
+        }
+        
+        let container = document.createElement('div');
+        container.className = 'flex items-center gap-1.5 p-1 w-full overflow-visible';
+        
+        // --- MAP PIN WRAPPER (Floating Effect) ---
+        let pinWrapper = document.createElement('div');
+        pinWrapper.className = 'relative flex flex-col items-center shrink-0 group z-20';
+
+        // Pin Head (Optimized Circle)
+        let pinHead = document.createElement('div');
+        pinHead.className = 'w-9 h-9 rounded-full border-2 shadow-lg flex items-center justify-center overflow-hidden bg-white transition-all duration-300 group-hover:-translate-y-2 group-hover:scale-110 hover:z-50';
+        pinHead.style.borderColor = color;
+
+        let img = document.createElement('img');
+        img.src = avatarUrl;
+        img.className = 'w-full h-full object-cover';
+        img.onerror = () => { img.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.name || 'U'); };
+        
+        pinHead.appendChild(img);
+        
+        // Pin Tail
+        let pinTail = document.createElement('div');
+        pinTail.className = 'w-2 h-2 -mt-1 rotate-45 border-r-2 border-b-2 bg-white';
+        pinTail.style.borderColor = color;
+
+        pinWrapper.appendChild(pinHead);
+        pinWrapper.appendChild(pinTail);
+        
+        // --- TEXT LABEL (Floating Bubble) ---
+        let textContainer = document.createElement('div');
+        textContainer.className = 'flex flex-col min-w-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm px-2 py-0.5 rounded-full border border-gray-100 dark:border-gray-700 shadow-sm max-w-[80px]';
+        
+        let title = document.createElement('span');
+        title.innerText = arg.event.title;
+        title.className = 'text-[10px] font-bold truncate leading-tight text-gray-800 dark:text-gray-100';
+
+        textContainer.appendChild(title);
+        
+        container.appendChild(pinWrapper);
+        container.appendChild(textContainer);
+        
+        return { domNodes: [container] };
     },
 
     select: (selectInfo) => emit('dateClick', selectInfo),
@@ -104,8 +163,8 @@ const calendarOptions = reactive({
     --fc-button-hover-border-color: #d1d5db;
     --fc-button-active-bg-color: #e5e7eb;
     --fc-button-active-border-color: #d1d5db;
-    --fc-event-bg-color: #3b82f6;
-    --fc-event-border-color: #3b82f6;
+    --fc-event-bg-color: transparent;
+    --fc-event-border-color: transparent;
     --fc-today-bg-color: rgba(59, 130, 246, 0.05);
 }
 
@@ -122,6 +181,46 @@ const calendarOptions = reactive({
     --fc-neutral-bg-color: #111827;
     --fc-list-event-hover-bg-color: #374151;
     --fc-today-bg-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Permitir que los eventos se vean como PINS FLOTANTES en FILA */
+.fc-daygrid-day-events {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+    padding: 4px !important;
+    justify-content: center !important;
+    overflow: visible !important;
+}
+
+.fc-daygrid-event-harness {
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+    overflow: visible !important;
+}
+
+.fc-v-event, .fc-h-event {
+    background-color: transparent !important;
+    border: none !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+}
+
+.fc-daygrid-event {
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+}
+
+.fc-event-main {
+    overflow: visible !important;
+    padding: 0 !important;
+}
+
+/* Evitar que el día tape los pines */
+.fc-daygrid-day-frame {
+    overflow: visible !important;
 }
 
 .fc .fc-toolbar-title {

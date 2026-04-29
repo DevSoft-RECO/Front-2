@@ -24,7 +24,7 @@ export default {
 
     // Anti-Race Condition: setTimeout de 150ms para asegurar que sessionStorage se guarde
     setTimeout(() => {
-        window.location.href = authUrl.toString();
+      window.location.href = authUrl.toString();
     }, 150);
   },
 
