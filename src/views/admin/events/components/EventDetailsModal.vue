@@ -1,22 +1,36 @@
 <script setup>
-const props = defineProps({
+defineProps({
     isOpen: Boolean,
-    item: Object // Event structure
+    item: Object
 });
 
-const emit = defineEmits(['close', 'delete']);
+defineEmits(['close', 'delete']);
 
-const formatDate = (dateStr) => {
+const formatDate = (dateStr, isAllDay = false) => {
     if (!dateStr) return '';
-    const date = new Date(dateStr);
-    return new Intl.DateTimeFormat('es-ES', {
+    // Extraemos los componentes de la fecha manualmente para ignorar zonas horarias
+    // y tratar la información del servidor como literal.
+    const parts = dateStr.match(/(\d{4})-(\d{2})-(\d{2})[T ]?(\d{2})?:?(\d{2})?/);
+    if (!parts) return dateStr;
+
+    const [, y, m, d, hh, mm] = parts;
+
+    // Creamos la fecha usando componentes individuales (esto la trata como hora local siempre)
+    const date = (hh && !isAllDay)
+        ? new Date(y, m - 1, d, hh, mm)
+        : new Date(y, m - 1, d);
+
+    if (isNaN(date.getTime())) return dateStr;
+
+    const options = {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
         day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    }).format(date);
+        ...((hh && !isAllDay) ? { hour: '2-digit', minute: '2-digit' } : {})
+    };
+
+    return new Intl.DateTimeFormat('es-ES', options).format(date);
 };
 
 // FullCalendar event object structure helper
@@ -51,8 +65,8 @@ const formatDate = (dateStr) => {
                 <div class="flex items-start gap-3 text-gray-600 dark:text-gray-300 mb-4">
                     <svg class="w-5 h-5 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                     <div>
-                        <p class="text-sm font-medium">{{ formatDate(item?.start) }}</p>
-                        <p v-if="item?.end" class="text-sm text-gray-500">Hasta: {{ formatDate(item?.end) }}</p>
+                        <p class="text-sm font-medium">{{ formatDate(item?.start, item?.is_all_day) }}</p>
+                        <p v-if="item?.end" class="text-sm text-gray-500">Hasta: {{ formatDate(item?.end, item?.is_all_day) }}</p>
                     </div>
                 </div>
 
