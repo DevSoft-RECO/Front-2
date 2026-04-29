@@ -329,14 +329,30 @@ onMounted(() => {
                         </td>
 
                         <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 break-words">
-                            <div v-if="item.usuario_equipo || item.password_equipo" class="flex flex-col gap-1">
-                                <div v-if="item.usuario_equipo" class="flex items-center gap-1 text-xs">
-                                    <svg class="w-3 h-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                                    <span class="font-medium text-gray-700 dark:text-gray-300">{{ item.usuario_equipo }}</span>
+                            <div v-if="item.usuario_equipo || item.password_equipo || item.usuario_admin || item.pass_admin" class="flex flex-col gap-1.5">
+                                <!-- User Credentials -->
+                                <div v-if="item.usuario_equipo || item.password_equipo" class="border-b border-gray-100 dark:border-gray-700 pb-1 mb-1">
+                                    <div v-if="item.usuario_equipo" class="flex items-center gap-1 text-[10px]">
+                                        <svg class="w-3 h-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                        <span class="text-gray-500">User:</span>
+                                        <span class="font-medium text-gray-700 dark:text-gray-300">{{ item.usuario_equipo }}</span>
+                                    </div>
+                                    <div v-if="item.password_equipo" class="flex items-center gap-1 text-[10px]">
+                                        <svg class="w-3 h-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>
+                                        <span class="text-gray-500">Pass:</span>
+                                        <span class="font-mono text-gray-600 dark:text-gray-400">{{ item.password_equipo }}</span>
+                                    </div>
                                 </div>
-                                <div v-if="item.password_equipo" class="flex items-center gap-1 text-xs">
-                                    <svg class="w-3 h-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>
-                                    <span class="font-mono text-gray-600 dark:text-gray-400">{{ item.password_equipo }}</span>
+                                <!-- Admin Credentials -->
+                                <div v-if="item.usuario_admin || item.pass_admin" class="bg-gray-50 dark:bg-gray-900/30 p-1 rounded border border-gray-100 dark:border-gray-700">
+                                    <div v-if="item.usuario_admin" class="flex items-center gap-1 text-[10px]">
+                                        <span class="text-blue-500 font-bold">Admin:</span>
+                                        <span class="font-medium text-gray-700 dark:text-gray-300">{{ item.usuario_admin }}</span>
+                                    </div>
+                                    <div v-if="item.pass_admin" class="flex items-center gap-1 text-[10px]">
+                                        <span class="text-blue-500 font-bold">Pass:</span>
+                                        <span class="font-mono text-gray-600 dark:text-gray-400">{{ item.pass_admin }}</span>
+                                    </div>
                                 </div>
                             </div>
                             <span v-else class="text-xs text-gray-400 italic">Sin credenciales</span>

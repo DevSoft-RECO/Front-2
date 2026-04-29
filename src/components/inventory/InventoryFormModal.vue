@@ -47,6 +47,8 @@ const form = ref({
     antivirus: '',
     bloqueo_usb: 'No',
     es_remoto: false,
+    usuario_admin: '',
+    pass_admin: '',
     observaciones: ''
 });
 
@@ -73,7 +75,9 @@ const resetForm = () => {
         activo: true, marca: '', modelo: '', nombre_equipo: '', ip_address: '',
         procesador: '', memoria_ram: '', almacenamiento: '', sistema_operativo: '',
         licencia_so: '', version_office: '', licencia_office: '', antivirus: '',
-        bloqueo_usb: 'No', es_remoto: false, observaciones: ''
+        bloqueo_usb: 'No', es_remoto: false, 
+        usuario_admin: '', pass_admin: '',
+        observaciones: ''
     };
 };
 
@@ -215,6 +219,8 @@ const handleSubmit = () => {
                     <div><label :class="labelClass">Puesto Responsable</label><input v-model="form.puesto_responsable" type="text" :class="inputClass"></div>
                     <div><label :class="labelClass">Usuario Equipo</label><input v-model="form.usuario_equipo" type="text" :class="inputClass"></div>
                     <div><label :class="labelClass">Password Equipo</label><input v-model="form.password_equipo" type="text" :class="inputClass"></div>
+                    <div><label :class="labelClass">Usuario Administrador</label><input v-model="form.usuario_admin" type="text" :class="inputClass" placeholder="Admin local..."></div>
+                    <div><label :class="labelClass">Contraseña Administrador</label><input v-model="form.pass_admin" type="text" :class="inputClass"></div>
 
                     <!-- Section: Estado & Otros -->
                     <div class="col-span-full pb-2 border-b border-gray-100 dark:border-gray-700 mb-2 mt-4">
