@@ -16,8 +16,8 @@ const formatDate = (dateStr, isAllDay = false) => {
     const [, y, m, d, hh, mm] = parts;
 
     // Creamos la fecha usando componentes individuales (esto la trata como hora local siempre)
-    const date = (hh && !isAllDay)
-        ? new Date(y, m - 1, d, hh, mm)
+    const date = hh 
+        ? new Date(y, m - 1, d, hh, mm) 
         : new Date(y, m - 1, d);
 
     if (isNaN(date.getTime())) return dateStr;
@@ -26,9 +26,19 @@ const formatDate = (dateStr, isAllDay = false) => {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
-        day: 'numeric',
-        ...((hh && !isAllDay) ? { hour: '2-digit', minute: '2-digit' } : {})
+        day: 'numeric'
     };
+
+    // Mostramos la hora si:
+    // 1. Hay horas en el string
+    // 2. Y (NO es todo el día O la hora no es 00:00)
+    const hasTime = hh && mm;
+    const isNotMidnight = parseInt(hh) !== 0 || parseInt(mm) !== 0;
+
+    if (hasTime && (!isAllDay || isNotMidnight)) {
+        options.hour = '2-digit';
+        options.minute = '2-digit';
+    }
 
     return new Intl.DateTimeFormat('es-ES', options).format(date);
 };
