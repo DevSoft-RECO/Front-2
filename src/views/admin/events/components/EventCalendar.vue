@@ -185,22 +185,7 @@ const calendarOptions = reactive({
     --fc-today-bg-color: rgba(59, 130, 246, 0.1);
 }
 
-/* Permitir que los eventos se vean como PINS FLOTANTES en FILA */
-.fc-daygrid-day-events {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: wrap !important;
-    gap: 4px !important;
-    padding: 4px !important;
-    justify-content: center !important;
-    overflow: visible !important;
-}
-
-.fc-daygrid-event-harness {
-    margin: 0 !important;
-    flex-shrink: 0 !important;
-    overflow: visible !important;
-}
+/* Los estilos de flexbox aquí causaban un bucle infinito de redimensionamiento */
 
 .fc-v-event, .fc-h-event {
     background-color: transparent !important;
@@ -218,11 +203,6 @@ const calendarOptions = reactive({
 .fc-event-main {
     overflow: visible !important;
     padding: 0 !important;
-}
-
-/* Evitar que el día tape los pines */
-.fc-daygrid-day-frame {
-    overflow: visible !important;
 }
 
 .fc .fc-toolbar-title {
