@@ -47,6 +47,8 @@ const calendarOptions = reactive({
     selectable: true,
     dayMaxEvents: 5, // Aumentamos para que se vean más pines antes de agrupar
     height: props.height,
+    contentHeight: 'auto',
+    handleWindowResize: true,
 
     events: async (fetchInfo, successCallback, failureCallback) => {
         try {

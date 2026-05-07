@@ -48,10 +48,10 @@
               </div>
               <RouterLink to="/admin/calendario" class="bg-gray-100 dark:bg-gray-700 px-4 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors font-medium">Gestionar Calendario</RouterLink>
           </div>
-          <div class="overflow-hidden">
+          <div class="overflow-hidden h-[700px] w-full">
              <EventCalendar
                 initialView="dayGridMonth"
-                height="700px"
+                height="100%"
                 :refresh-trigger="refreshTrigger"
                 @eventClick="handleEventClick"
             />
