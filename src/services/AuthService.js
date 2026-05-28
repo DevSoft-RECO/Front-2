@@ -33,8 +33,8 @@ export default {
    */
   logout() {
     this.logoutLocal();
-    // Redirigir al logout de la Madre (Frontend del Portal)
-    window.location.href = `${MOTHER_APP_URL}/logout`;
+    // Redirigir al logout de la Madre (Backend para destruir cookies de sesión)
+    window.location.href = `${MOTHER_API_URL}/logout`;
   },
 
   logoutLocal() {

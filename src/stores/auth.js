@@ -4,6 +4,8 @@ import axios from 'axios'
 import AuthService from '../services/AuthService'
 import api from '../api/axios' // Cliente para Backend Local
 import { getAvatarUrl } from '../utils/imageUtils'
+import Echo from 'laravel-echo'
+import Pusher from 'pusher-js'
 
 const MOTHER_API_URL = import.meta.env.VITE_MOTHER_API_URL
 const CLIENT_ID = import.meta.env.VITE_CLIENT_ID
@@ -27,6 +29,14 @@ export const useAuthStore = defineStore('auth', () => {
   const processingSSO = ref(false)
   const isReady = ref(false)
   let fetchPromise = null
+
+  // --- VARIABLES REACTIVAS DE SOCKETS Y CONTROL DE INACTIVIDAD ---
+  const echoInstance = ref(null)
+  const showInactivityModal = ref(false)
+  const inactivitySessionId = ref(null)
+  const inactivityCountdown = ref(300)
+  const isHeartbeatLoading = ref(false)
+  let countdownTimerId = null
 
   // --- GETTERS ---
   const userAvatar = computed(() => {
@@ -75,6 +85,9 @@ export const useAuthStore = defineStore('auth', () => {
 
       // ¡ESTO ES VITAL! Pedimos datos de usuario ignorando cualquier basura vieja
       await fetchUser(true);
+
+      // CRÍTICO: Inicializar WebSockets de inmediato tras obtener el token
+      initSessionSocket()
     } catch (error) {
       console.error('Error procesando el canje PKCE:', error)
       throw error
@@ -87,6 +100,7 @@ export const useAuthStore = defineStore('auth', () => {
    * Cierra sesión local y redirige al backend
    */
   function logout() {
+    disconnectSessionSocket()
     user.value = null
     token.value = null
     isReady.value = false
@@ -156,6 +170,101 @@ export const useAuthStore = defineStore('auth', () => {
     await fetchUser()
   }
 
+  // --- MÉTODOS DE SOCKETS Y CIERRE ---
+  function initSessionSocket() {
+    if (!token.value || !user.value) return
+    if (echoInstance.value) return // Evitar conexiones duplicadas
+
+    window.Pusher = Pusher
+
+    echoInstance.value = new Echo({
+      broadcaster: 'reverb',
+      key: import.meta.env.VITE_REVERB_APP_KEY,
+      wsHost: import.meta.env.VITE_REVERB_HOST || 'localhost',
+      wsPort: Number(import.meta.env.VITE_REVERB_PORT) || 8082,
+      wssPort: Number(import.meta.env.VITE_REVERB_PORT) || 8082,
+      forceTLS: false,
+      enabledTransports: ['ws', 'wss'],
+      authEndpoint: `${import.meta.env.VITE_MOTHER_API_URL}/api/broadcasting/auth`,
+      auth: {
+        headers: {
+          Authorization: `Bearer ${token.value}`,
+          Accept: 'application/json'
+        }
+      }
+    })
+
+    // Escuchar canal privado del usuario centralizado
+    echoInstance.value.private(`user.${user.value.id}`)
+      .listen('.InactivityExpiringSoon', (e) => {
+        inactivitySessionId.value = e.sessionId
+        inactivityCountdown.value = Math.round(e.remainingSeconds) || 300
+        showInactivityModal.value = true
+        startLocalCountdown()
+      })
+      .listen('.SessionForceClosed', () => {
+        stopLocalCountdown()
+        disconnectSessionSocket()
+        AuthService.logoutLocal()
+        const motherAppUrl = import.meta.env.VITE_MOTHER_APP_URL || 'http://localhost:5173'
+        window.location.href = `${motherAppUrl}/login?session_expired=true`
+      })
+  }
+
+  function disconnectSessionSocket() {
+    if (echoInstance.value) {
+      echoInstance.value.disconnect()
+      echoInstance.value = null
+    }
+    showInactivityModal.value = false
+    inactivitySessionId.value = null
+    stopLocalCountdown()
+  }
+
+  function startLocalCountdown() {
+    if (countdownTimerId) clearInterval(countdownTimerId)
+    countdownTimerId = setInterval(() => {
+      if (inactivityCountdown.value > 0) {
+        inactivityCountdown.value--
+      } else {
+        clearInterval(countdownTimerId)
+        AuthService.logoutLocal()
+        const motherAppUrl = import.meta.env.VITE_MOTHER_APP_URL || 'http://localhost:5173'
+        window.location.href = `${motherAppUrl}/login?session_expired=true`
+      }
+    }, 1000)
+  }
+
+  function stopLocalCountdown() {
+    if (countdownTimerId) {
+      clearInterval(countdownTimerId)
+      countdownTimerId = null
+    }
+  }
+
+  async function sendHeartbeatPing() {
+    if (!inactivitySessionId.value || isHeartbeatLoading.value) return
+    isHeartbeatLoading.value = true
+    try {
+      const motherApiUrl = import.meta.env.VITE_MOTHER_API_URL || 'http://localhost:8000'
+      await axios.post(`${motherApiUrl}/api/sso/heartbeat`, {
+        session_id: inactivitySessionId.value
+      }, {
+        headers: {
+          Authorization: `Bearer ${token.value}`
+        }
+      })
+
+      showInactivityModal.value = false
+      stopLocalCountdown()
+    } catch (err) {
+      console.error('Error al enviar ping de heartbeat a la Madre:', err)
+      logout()
+    } finally {
+      isHeartbeatLoading.value = false
+    }
+  }
+
   return {
     user,
     token,
@@ -168,7 +277,16 @@ export const useAuthStore = defineStore('auth', () => {
     fetchUser,
     checkAuth,
     can,
-    hasRole
+    hasRole,
+    // Sockets e Inactividad
+    echoInstance,
+    showInactivityModal,
+    inactivitySessionId,
+    inactivityCountdown,
+    isHeartbeatLoading,
+    initSessionSocket,
+    disconnectSessionSocket,
+    sendHeartbeatPing
   }
 })
 
