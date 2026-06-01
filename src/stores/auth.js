@@ -129,7 +129,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     fetchPromise = (async () => {
         try {
-            const response = await api.get('/me');
+            const response = await api.get(force ? '/me?sync=true' : '/me');
             user.value = response.data;
             sessionStorage.setItem('user_data', JSON.stringify(user.value));
             return user.value;
