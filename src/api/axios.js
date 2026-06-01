@@ -32,13 +32,19 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
+      console.warn('[SSO] Token no válido (401). Redirigiendo a Logout Central.');
+      
+      // Limpiar datos locales
       localStorage.removeItem('access_token');
       sessionStorage.clear();
 
-      // Redirigir al login usando AuthService
+      // Redirigir al logout central usando AuthService
       import('@/services/AuthService').then(module => {
-        module.default.login();
+        module.default.logout();
       });
+      
+      // Retornar promesa vacía para cortar cualquier otra ejecución asíncrona del JS
+      return new Promise(() => {});
     }
     return Promise.reject(error);
   }
